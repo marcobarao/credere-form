@@ -1,7 +1,7 @@
 import React from "react";
 import { mount } from "enzyme";
 import { MemoryRouter } from "react-router-dom";
-import Form from "../src/pages/Form";
+import Form from "../src/pages/CustomerForm";
 import NotFound from "../src/pages/NotFound";
 import App from "../src/App";
 
