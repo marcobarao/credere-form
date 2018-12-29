@@ -33,5 +33,56 @@ export default Yup.object().shape({
     is: true,
     then: Yup.string().required("Selecione a cidade que você mora"),
     otherwise: Yup.string()
+  }),
+  phones: Yup.array()
+    .of(
+      Yup.object().shape({
+        code: Yup.string()
+          .matches(/^\d{2}.*/, "Digite o telefone corretamente")
+          .required("Digite o seu telefone"),
+        number: Yup.string()
+          .matches(/^\d{4,5}-\d{4}.*/, "Digite o telefone corretamente")
+          .required("Digite o seu telefone")
+      })
+    )
+    .compact()
+    .min(1, "Digite ao menos um telefone")
+    .max(4, "Digite no máximo 4 telefones"),
+  emails: Yup.array()
+    .of(
+      Yup.object().shape({
+        address: Yup.string()
+          .email("Digite um e-mail válido")
+          .required("Digite o seu e-mail")
+      })
+    )
+    .compact()
+    .min(1, "Digite ao menos um e-mail")
+    .max(3, "Digite no máximo 3 e-mails"),
+  parent: Yup.object().shape({
+    name: Yup.string().when("$parent_area", {
+      is: true,
+      then: Yup.string()
+        .min(3, "Digite seu nome completo do responsável")
+        .max(80, "O nome do responsável contêm muitos caracteres")
+        .required("Digite o nome do seu responsável"),
+      otherwise: Yup.string()
+    }),
+    phone: Yup.object().shape({
+      code: Yup.string().when("$parent_area", {
+        is: true,
+        then: Yup.string()
+          .matches(/^\d{2}.*/, "Digite o telefone corretamente")
+          .required("Digite o telefone do seu responsável"),
+        otherwise: Yup.string()
+      }),
+      number: Yup.string().when("$parent_area", {
+        is: true,
+        then: Yup.string()
+          .matches(/^\d{4,5}-\d{4}.*/, "Digite o telefone corretamente")
+          .required("Digite o telefone do seu responsável"),
+        otherwise: Yup.string()
+      })
+    })
   })
 });

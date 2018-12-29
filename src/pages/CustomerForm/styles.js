@@ -15,6 +15,14 @@ const Title = styled.h2`
   color: #454553;
 `;
 
+const Subtitle = styled.h3`
+  font-family: "Montserrat", sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: bold;
+  color: #454553;
+`;
+
 const Label = styled.label`
   display: block;
   clear: left;
@@ -25,6 +33,14 @@ const Label = styled.label`
   margin: 20px 0 10;
   > span {
     color: #d14e63;
+  }
+  &:hover {
+    > span {
+      width: 14px;
+      height: 14px;
+      background-color: #4aa0d5;
+      border: 4px solid #e9e9ea;
+    }
   }
 `;
 
@@ -41,6 +57,21 @@ const Field = styled(FormikField)`
   border-radius: 10px;
   box-sizing: border-box;
   border: ${props => props.border || "1px solid #cacaca"};
+  ${props =>
+    props.code &&
+    css`
+      width: 19%;
+      margin: 10px 2% 10px 0;
+      padding: 10px 15px;
+    `}
+
+  ${props =>
+    props.number &&
+    css`
+      width: 79%;
+      margin: 10px 0;
+      padding: 10px 15px;
+    `}
 `;
 
 const Mask = styled(InputMask)`
@@ -72,6 +103,63 @@ const Mask = styled(InputMask)`
       margin: 10px 0;
       padding: 10px 15px;
     `}
+`;
+
+const Fieldset = styled.fieldset`
+  position: relative;
+  padding: 0;
+  border: none;
+`;
+
+const Unit = styled.div`
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+`;
+
+const Checked = styled.span`
+  display: inline-block;
+  background-color: ${props => (props.checked ? "#4aa0d5" : "#e9e9ea")};
+  width: 11px;
+  height: 11px;
+  margin: 0 4px 0 0;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 7px solid #e9e9ea;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  transition: all 100ms ease-out;
+`;
+
+const RadioButton = styled.input`
+  display: none;
+`;
+
+const Action = styled.button`
+  position: absolute;
+  ${props =>
+    props.center
+      ? css`
+          top: 30px;
+          right: 0;
+          transform: translateY(-50%);
+        `
+      : css`
+          right: 0;
+          bottom: 0;
+        `}
+  width: 24px;
+  height: 24px;
+  text-indent: -9999px;
+  padding: 4px;
+  background-color: ${props => (props.primary ? "#4aa0d5" : "transparent")};
+  background-image: url(${props => props.icon});
+  background-size: 16px;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  border: none;
+  border-radius: 50%;
 `;
 
 const Error = styled.div`
@@ -107,4 +195,18 @@ const Submit = styled.button`
   }
 `;
 
-export { Container, Title, Label, Field, Mask, Error, Submit };
+export {
+  Container,
+  Title,
+  Subtitle,
+  Label,
+  Field,
+  Mask,
+  Fieldset,
+  Unit,
+  Checked,
+  RadioButton,
+  Action,
+  Error,
+  Submit
+};
