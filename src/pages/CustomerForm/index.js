@@ -228,6 +228,14 @@ class CustomerForm extends Component {
     setFieldValue("phones", phones.filter((phone, i) => index !== i));
   };
 
+  addEmail = ({ emails }, setFieldValue) => {
+    setFieldValue("emails", emails.concat([{ address: "" }]));
+  };
+
+  removeEmail = (index, { emails }, setFieldValue) => {
+    setFieldValue("emails", emails.filter((email, i) => index !== i));
+  };
+
   parentRule = (values, errors, touched) => {
     return (
       this.getAge(values) < 18 && (
@@ -514,17 +522,57 @@ class CustomerForm extends Component {
                   </Action>
                 ) : null}
               </Fieldset>
-              <Label htmlFor="emails[0].address">
-                E-mail(s) <span>*</span>
-              </Label>
-              <Field
-                name="emails[0].address"
-                id="emails[0].address"
-                border={
-                  errors.emails && touched.emails ? "1px solid red" : null
-                }
-              />
-              <ErrorMessage name="emails[0].address" component={Error} />
+              <Fieldset>
+                <Label htmlFor="emails[0].address">
+                  E-mail(s) <span>*</span>
+                </Label>
+                {values.emails.map((email, index) => (
+                  <Unit key={index}>
+                    <Field
+                      name={`emails[${index}].address`}
+                      id={`emails[${index}].address`}
+                      border={
+                        errors.emails &&
+                        errors.emails[index] &&
+                        touched.emails &&
+                        touched.emails[index]
+                          ? "1px solid red"
+                          : null
+                      }
+                    />
+                    <ErrorMessage
+                      name={`emails[${index}].address`}
+                      component={Error}
+                    />
+                    {values.emails.length > 1 ? (
+                      <Action
+                        center="true"
+                        onClick={e => {
+                          e.preventDefault();
+                          this.removeEmail(index, values, setFieldValue);
+                        }}
+                        tabIndex="-1"
+                        icon={Remove}
+                      >
+                        Remover o e-mail
+                      </Action>
+                    ) : null}
+                  </Unit>
+                ))}
+                {values.emails.length < 3 ? (
+                  <Action
+                    primary="true"
+                    icon={Add}
+                    onClick={e => {
+                      e.preventDefault();
+                      this.addEmail(values, setFieldValue);
+                    }}
+                    tabIndex="-1"
+                  >
+                    Adicionar novo e-mail
+                  </Action>
+                ) : null}
+              </Fieldset>
               {this.parentRule(values, errors, touched)}
               <Submit type="submit">Salvar</Submit>
             </Form>
