@@ -17,7 +17,7 @@ describe("Testing Routes", () => {
   });
   it("should render Form Component", () => {
     const wrapper = mount(
-      <MemoryRouter initialEntries={["/"]} initialIndex={0}>
+      <MemoryRouter initialEntries={["/customer"]} initialIndex={0}>
         <App />
       </MemoryRouter>
     );

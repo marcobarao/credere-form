@@ -30,17 +30,9 @@ const Label = styled.label`
   font-size: 17px;
   line-height: 22px;
   color: #454553;
-  margin: 20px 0 10;
+  margin: 20px 0 10px;
   > span {
     color: #d14e63;
-  }
-  &:hover {
-    > span {
-      width: 14px;
-      height: 14px;
-      background-color: #4aa0d5;
-      border: 4px solid #e9e9ea;
-    }
   }
 `;
 

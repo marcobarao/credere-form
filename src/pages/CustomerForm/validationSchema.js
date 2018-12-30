@@ -11,32 +11,36 @@ export default Yup.object().shape({
       "Digite uma data valida"
     )
     .required("Digite a sua data de nascimento"),
-  driver_license: Yup.object().shape({
-    number: Yup.string().when("$age", {
+  driver_license: Yup.object()
+    .shape({
+      number: Yup.string().when("$ofAge", {
+        is: true,
+        then: Yup.string()
+          .matches(
+            /^\d{11}.*/,
+            "Digite o número da sua carteira de motorista corretamente"
+          )
+          .required("Digite o número da carteira de motorista"),
+        otherwise: Yup.string()
+      }),
+      issued_at: Yup.string().when("$ofAge", {
+        is: true,
+        then: Yup.string()
+          .min(3, "Digite corretamente o nome do orgão emissor")
+          .max(20, "Nome do orgão emissor contêm muitos caracteres")
+          .required("Digite o orgão emissor da sua carteira"),
+        otherwise: Yup.string()
+      })
+    })
+    .nullable(),
+  state: Yup.string().required("Selecione o estado onde você mora"),
+  city: Yup.string()
+    .when("$city", {
       is: true,
-      then: Yup.string()
-        .matches(
-          /^\d{11}.*/,
-          "Digite o número da sua carteira de motorista corretamente"
-        )
-        .required("Digite o número da carteira de motorista"),
-      otherwise: Yup.string()
-    }),
-    issued_at: Yup.string().when("$age", {
-      is: true,
-      then: Yup.string()
-        .min(3, "Digite corretamente o nome do orgão emissor")
-        .max(20, "Nome do orgão emissor contêm muitos caracteres")
-        .required("Digite o orgão emissor da sua carteira"),
+      then: Yup.string().required("Selecione a cidade que você mora"),
       otherwise: Yup.string()
     })
-  }),
-  state: Yup.string().required("Selecione o estado onde você mora"),
-  city: Yup.string().when("$city", {
-    is: true,
-    then: Yup.string().required("Selecione a cidade que você mora"),
-    otherwise: Yup.string()
-  }),
+    .nullable(),
   phones: Yup.array()
     .of(
       Yup.object().shape({
@@ -62,30 +66,32 @@ export default Yup.object().shape({
     .compact()
     .min(1, "Digite ao menos um e-mail")
     .max(3, "Digite no máximo 3 e-mails"),
-  parent: Yup.object().shape({
-    name: Yup.string().when("$parent_area", {
-      is: true,
-      then: Yup.string()
-        .min(3, "Digite seu nome completo do responsável")
-        .max(80, "O nome do responsável contêm muitos caracteres")
-        .required("Digite o nome do seu responsável"),
-      otherwise: Yup.string()
-    }),
-    phone: Yup.object().shape({
-      code: Yup.string().when("$parent_area", {
+  parent: Yup.object()
+    .shape({
+      name: Yup.string().when("$parent", {
         is: true,
         then: Yup.string()
-          .matches(/^\d{2}.*/, "Digite o telefone corretamente")
-          .required("Digite o telefone do seu responsável"),
+          .min(3, "Digite seu nome completo do responsável")
+          .max(80, "O nome do responsável contêm muitos caracteres")
+          .required("Digite o nome do seu responsável"),
         otherwise: Yup.string()
       }),
-      number: Yup.string().when("$parent_area", {
-        is: true,
-        then: Yup.string()
-          .matches(/^\d{4,5}-\d{4}.*/, "Digite o telefone corretamente")
-          .required("Digite o telefone do seu responsável"),
-        otherwise: Yup.string()
+      phone: Yup.object().shape({
+        code: Yup.string().when("$parent", {
+          is: true,
+          then: Yup.string()
+            .matches(/^\d{2}.*/, "Digite o telefone corretamente")
+            .required("Digite o telefone do seu responsável"),
+          otherwise: Yup.string()
+        }),
+        number: Yup.string().when("$parent", {
+          is: true,
+          then: Yup.string()
+            .matches(/^\d{4,5}-\d{4}.*/, "Digite o telefone corretamente")
+            .required("Digite o telefone do seu responsável"),
+          otherwise: Yup.string()
+        })
       })
     })
-  })
+    .nullable()
 });

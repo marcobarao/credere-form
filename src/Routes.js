@@ -7,7 +7,8 @@ import NotFound from "./pages/NotFound";
 const Routes = () => (
   <Router>
     <Switch>
-      <Route exact path="/" component={Form} />
+      <Route exact path="/customer" component={Form} />
+      <Route path="/customer/edit/:id" component={Form} />
       <Route component={NotFound} />
     </Switch>
   </Router>

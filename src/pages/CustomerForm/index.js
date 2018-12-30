@@ -1,48 +1,23 @@
 import React, { Component } from "react";
-import {
-  Formik,
-  Form,
-  ErrorMessage,
-  validateYupSchema,
-  yupToFormErrors
-} from "formik";
-import Select from "react-select";
+import { Formik, Form, validateYupSchema, yupToFormErrors } from "formik";
 
-import {
-  Container,
-  Title,
-  Label,
-  Field,
-  Mask,
-  Fieldset,
-  Unit,
-  RadioButton,
-  Checked,
-  Action,
-  Error,
-  Submit,
-  Subtitle
-} from "./styles";
-import Add from "../../assets/images/icons/add.svg";
-import Remove from "../../assets/images/icons/remove.svg";
+import { Container, Title, Submit } from "./styles";
 import ValidationSchema from "./validationSchema";
 import ibge from "../../services/ibge";
+import api from "../../services/api";
 
-const selectStyles = {
-  control: styles => ({
-    ...styles,
-    height: 40,
-    margin: "10px 0",
-    backgroundColor: "white"
-  }),
-  option: styles => ({
-    ...styles,
-    color: "black"
-  }),
-  input: styles => ({ ...styles }),
-  placeholder: styles => ({ ...styles }),
-  singleValue: styles => ({ ...styles })
-};
+import NormalField from "../../objects/NormalField";
+import MaskedField from "../../objects/MaskedField";
+import SelectField from "../../objects/SelectField";
+import ParentRule from "../../components/ParentRule";
+import DriverLicenseRule from "../../components/DriverLicenseRule";
+import CityRule from "../../components/CityRule";
+import PhonesArea from "../../components/PhonesArea";
+import EmailsArea from "../../components/EmailsArea";
+
+const dateRegex = new RegExp(
+  /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/
+);
 
 class CustomerForm extends Component {
   state = {
@@ -80,260 +55,75 @@ class CustomerForm extends Component {
         index !== i ? { ...phone, main: false } : { ...phone, main: true }
       )
     );
-    console.log(phones);
   };
 
   async componentDidMount() {
+    const {
+      match: {
+        params: { id }
+      }
+    } = this.props;
+
+    if (id) {
+      const resCustomer = await api.get("customer.json");
+      const customer = resCustomer.data.customer;
+      if (customer.state === "RN") this.getCities(24);
+      this.setState({ customer });
+    }
+
     const resStates = await ibge.get("localidades/estados/");
 
-    const stateOptions = resStates.data.sort((a, b) => {
-      if (a.nome > b.nome) {
-        return 1;
-      }
-      if (a.nome < b.nome) {
-        return -1;
-      }
-      return 0;
-    });
+    const stateOptions = resStates.data.sort((a, b) =>
+      a.nome > b.nome ? 1 : a.nome < b.nome ? -1 : 0
+    );
     this.setState({ stateOptions });
   }
 
-  getAge = ({ birthday }) => {
+  isOfAge = ({ birthday }) => {
     const dateSplit = birthday.split("/");
     const date = new Date(dateSplit[2], dateSplit[1] - 1, dateSplit[0]);
 
     const ageMs = Date.now() - date.getTime();
     const ageDate = new Date(ageMs);
 
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
+    return Math.abs(ageDate.getUTCFullYear() - 1970) >= 18;
   };
 
   getCities = async id => {
     const resCities = await ibge.get(`localidades/estados/${id}/municipios`);
 
-    const cityOptions = resCities.data.sort((a, b) => {
-      if (a.nome > b.nome) {
-        return 1;
-      }
-      if (a.nome < b.nome) {
-        return -1;
-      }
-      return 0;
-    });
+    const cityOptions = resCities.data.sort((a, b) =>
+      a.nome > b.nome ? 1 : a.nome < b.nome ? -1 : 0
+    );
     this.setState({ cityOptions });
   };
 
-  cityRule = (values, errors, setFieldValue, touched) => {
-    const { cityOptions } = this.state;
-    return values.state === "RN" &&
-      values.driver_license.number.startsWith("6") ? (
-      <>
-        <Label htmlFor="city">
-          Cidade <span>*</span>
-        </Label>
-        <Field
-          name="city"
-          component={({ field }) => (
-            <Select
-              {...field}
-              getOptionLabel={option => option.nome}
-              getOptionValue={option => option.id}
-              options={cityOptions}
-              isLoading={!cityOptions.length}
-              placeholder="Selecione a sua cidade"
-              isClearable={true}
-              isSearchable={true}
-              value={cityOptions.find(option => option.nome === field.value)}
-              onChange={option => {
-                setFieldValue(field.name, option ? option.nome : "");
-              }}
-              inputId={field.name}
-              styles={selectStyles}
-              theme={theme => ({
-                ...theme,
-                borderRadius: 10,
-                colors: {
-                  ...theme.colors,
-                  primary50: "#C4D1D6",
-                  primary25: "#EBF1F2",
-                  primary: "#EBF1F2",
-                  neutral20:
-                    errors.city && touched.city ? "red" : "rgb(202, 202, 202)"
-                }
-              })}
-            />
-          )}
-        />
-        <ErrorMessage name="city" component={Error} />
-      </>
-    ) : null;
+  addField = (name, concat) => (values, setFieldValue) => {
+    setFieldValue(name, values[name].concat(concat));
   };
 
-  driverLicenseRule = (values, errors, touched) => {
-    return (
-      this.getAge(values) >= 18 && (
-        <>
-          <Label htmlFor="driver_license.number">
-            Carteira de motorista <span>*</span>
-          </Label>
-          <Field
-            name="driver_license.number"
-            render={({ field }) => (
-              <Mask
-                {...field}
-                mask="99999999999"
-                border={
-                  errors.driver_license &&
-                  errors.driver_license.number &&
-                  touched.driver_license &&
-                  touched.driver_license.number
-                    ? "1px solid red"
-                    : null
-                }
-                maskChar={null}
-                id={field.name}
-              />
-            )}
-          />
-          <ErrorMessage name="driver_license.number" component={Error} />
-          <Label htmlFor="driver_license.issued_at">
-            Orgão emissor <span>*</span>
-          </Label>
-          <Field
-            name="driver_license.issued_at"
-            id="driver_license.issued_at"
-            border={
-              errors.driver_license &&
-              errors.driver_license.issued_at &&
-              touched.driver_license &&
-              touched.driver_license.issued_at
-                ? "1px solid red"
-                : null
-            }
-          />
-          <ErrorMessage name="driver_license.issued_at" component={Error} />
-        </>
-      )
-    );
-  };
-
-  addPhone = ({ phones }, setFieldValue) => {
-    setFieldValue(
-      "phones",
-      phones.concat([{ code: "", number: "", main: false }])
-    );
-  };
-
-  removePhone = (index, { phones }, setFieldValue) => {
-    setFieldValue("phones", phones.filter((phone, i) => index !== i));
-  };
-
-  addEmail = ({ emails }, setFieldValue) => {
-    setFieldValue("emails", emails.concat([{ address: "" }]));
-  };
-
-  removeEmail = (index, { emails }, setFieldValue) => {
-    setFieldValue("emails", emails.filter((email, i) => index !== i));
-  };
-
-  parentRule = (values, errors, touched) => {
-    return (
-      this.getAge(values) < 18 && (
-        <>
-          <Subtitle>Responsável</Subtitle>
-          <Label htmlFor="parent.name">
-            Nome <span>*</span>
-          </Label>
-          <Field
-            name="parent.name"
-            id="parent.name"
-            border={
-              errors.parent &&
-              errors.parent.name &&
-              touched.parent &&
-              touched.parent.name
-                ? "1px solid red"
-                : null
-            }
-          />
-          <ErrorMessage name="parent.name" component={Error} />
-          <Label htmlFor="parent.phone.code">
-            Telefone <span>*</span>
-          </Label>
-          <Field
-            name="parent.phone.code"
-            code="true"
-            render={({ field }) => (
-              <Mask
-                {...field}
-                code="true"
-                mask="99"
-                border={
-                  errors.parent &&
-                  errors.parent.phone &&
-                  errors.parent.phone.code &&
-                  touched.parent &&
-                  touched.parent.phone &&
-                  touched.parent.phone.code
-                    ? "1px solid red"
-                    : null
-                }
-                maskChar={null}
-                id={field.name}
-              />
-            )}
-          />
-          <Field
-            name="parent.phone.number"
-            number="true"
-            render={({ field }) => (
-              <Mask
-                {...field}
-                number="true"
-                mask={
-                  field.value && field.value.length < 10
-                    ? "9999-9999?"
-                    : "99999-9999"
-                }
-                formatChars={{ "9": "[0-9]", "?": "[0-9 ]" }}
-                border={
-                  errors.parent &&
-                  errors.parent.phone &&
-                  errors.parent.phone.number &&
-                  touched.parent &&
-                  touched.parent.phone &&
-                  touched.parent.phone.number
-                    ? "1px solid red"
-                    : null
-                }
-                maskChar={null}
-                id={field.name}
-              />
-            )}
-          />
-          <ErrorMessage name="parent.phone.code" component={Error} />
-        </>
-      )
-    );
+  removeField = name => (index, values, setFieldValue) => {
+    setFieldValue(name, values[name].filter((item, i) => index !== i));
   };
 
   render() {
-    const { stateOptions, customer } = this.state;
+    const { stateOptions, cityOptions, customer } = this.state;
+
     return (
       <Formik
         initialValues={customer}
+        enableReinitialize={true}
         validateOnBlur={false}
         validateOnChange={false}
         validate={values => {
-          const dateRegex = new RegExp(/^\d{2}\/\d{2}\/\d{4}.*/);
-          const age = this.getAge(values) >= 18;
-          const parent_area = !age && dateRegex.test(values.birthday);
+          const ofAge = this.isOfAge(values);
+          const parent = !ofAge && dateRegex.test(values.birthday);
           const city = values.state === "RN";
           try {
             validateYupSchema(values, ValidationSchema, true, {
-              age,
+              ofAge,
               city,
-              parent_area
+              parent
             });
           } catch (err) {
             return yupToFormErrors(err);
@@ -343,238 +133,88 @@ class CustomerForm extends Component {
         }}
         onSubmit={this.handleSubmit}
       >
-        {({ setFieldValue, errors, values, touched }) => (
+        {({ handleSubmit, setFieldValue, errors, values, touched }) => (
           <Container>
             <Form>
               <Title>Cliente</Title>
-              <Label htmlFor="name">
-                Nome <span>*</span>
-              </Label>
-              <Field
+              <NormalField
+                label="Nome"
                 name="name"
-                id="name"
-                border={errors.name && touched.name ? "1px solid red" : null}
+                errors={errors}
+                touched={touched}
               />
-              <ErrorMessage name="name" component={Error} />
-              <Label htmlFor="birthday">
-                Data de nascimento <span>*</span>
-              </Label>
-              <Field
+              <MaskedField
+                label="Data de nascimento"
                 name="birthday"
-                render={({ field }) => (
-                  <Mask
-                    {...field}
-                    mask="99/99/9999"
-                    border={
-                      errors.birthday && touched.birthday
-                        ? "1px solid red"
-                        : null
-                    }
-                    permanents={[2, 5]}
-                    maskChar="_"
-                    id={field.name}
-                  />
-                )}
+                mask="99/99/9999"
+                permanents={[2, 5]}
+                errors={errors}
+                touched={touched}
               />
-              <ErrorMessage name="birthday" component={Error} />
-              {this.driverLicenseRule(values, errors, touched)}
-              <Label htmlFor="state">
-                Estado <span>*</span>
-              </Label>
-              <Field
+              {/* Mostra as informações de carteira de motorista se for maior de idade */}
+              {this.isOfAge(values) && dateRegex.test(values.birthday) ? (
+                <DriverLicenseRule errors={errors} touched={touched} />
+              ) : null}
+              <SelectField
+                label="Estado"
                 name="state"
-                component={({ field }) => (
-                  <Select
-                    {...field}
-                    getOptionLabel={option => option.nome}
-                    getOptionValue={option => option.sigla}
-                    options={stateOptions}
-                    inputId={field.name}
-                    placeholder="Selecione seu estado"
-                    isClearable={true}
-                    isSearchable={true}
-                    value={stateOptions.find(
-                      option => option.sigla === field.value
-                    )}
-                    onChange={option => {
-                      setFieldValue(field.name, option ? option.sigla : "");
-                      if (option && option.sigla === "RN")
-                        this.getCities(option.id);
-                    }}
-                    styles={selectStyles}
-                    theme={theme => ({
-                      ...theme,
-                      borderRadius: 10,
-                      colors: {
-                        ...theme.colors,
-                        primary50: "#C4D1D6",
-                        primary25: "#EBF1F2",
-                        primary: "#EBF1F2",
-                        neutral20:
-                          errors.state && touched.state
-                            ? "red"
-                            : "rgb(202, 202, 202)"
-                      }
-                    })}
-                  />
+                placeholder="Selecione seu estado"
+                getOptionLabel={option => option.nome}
+                getOptionValue={option => option.sigla}
+                value={stateOptions.find(
+                  option => option.sigla === values.state
                 )}
+                onChange={option => {
+                  setFieldValue("state", option ? option.sigla : "");
+                  if (option && option.sigla === "RN")
+                    this.getCities(option.id);
+                }}
+                options={stateOptions}
+                errors={errors}
+                touched={touched}
               />
-              <ErrorMessage name="state" component={Error} />
-              {this.cityRule(values, errors, setFieldValue, touched)}
-              <Fieldset>
-                <Label htmlFor="phones[].code">
-                  Telefone(s) <span>*</span>
-                </Label>
-                {values.phones.map((phone, index) => (
-                  <Unit key={index}>
-                    <Field
-                      name={`phones[${index}].code`}
-                      code="true"
-                      render={({ field }) => (
-                        <Mask
-                          {...field}
-                          code="true"
-                          mask="99"
-                          border={
-                            errors.phones &&
-                            errors.phones[index] &&
-                            touched.phones &&
-                            touched.phones[index]
-                              ? "1px solid red"
-                              : null
-                          }
-                          maskChar={null}
-                          id={field.name}
-                        />
-                      )}
-                    />
-                    <Field
-                      name={`phones[${index}].number`}
-                      number="true"
-                      render={({ field }) => (
-                        <Mask
-                          {...field}
-                          number="true"
-                          mask={
-                            field.value && field.value.length < 10
-                              ? "9999-9999?"
-                              : "99999-9999"
-                          }
-                          formatChars={{ "9": "[0-9]", "?": "[0-9 ]" }}
-                          border={
-                            errors.phones &&
-                            errors.phones[index] &&
-                            touched.phones &&
-                            touched.phones[index]
-                              ? "1px solid red"
-                              : null
-                          }
-                          maskChar={null}
-                          id={field.name}
-                        />
-                      )}
-                    />
-                    {values.phones.length > 1 ? (
-                      <>
-                        <Action
-                          center="true"
-                          onClick={e => {
-                            e.preventDefault();
-                            this.removePhone(index, values, setFieldValue);
-                          }}
-                          tabIndex="-1"
-                          icon={Remove}
-                        >
-                          Remover o telefone
-                        </Action>
-                        <RadioButton
-                          id={index}
-                          name={`phones.main`}
-                          type="radio"
-                          onChange={e =>
-                            this.handleMain(values, index, setFieldValue)
-                          }
-                          checked={values.phones[index].main}
-                        />
-                        <Label htmlFor={index}>
-                          <Checked checked={values.phones[index].main} />
-                          Principal
-                        </Label>
-                      </>
-                    ) : null}
-                    <ErrorMessage
-                      name={`phones[${index}].number`}
-                      component={Error}
-                    />
-                  </Unit>
-                ))}
-                {values.phones.length < 4 ? (
-                  <Action
-                    primary="true"
-                    icon={Add}
-                    onClick={e => {
-                      e.preventDefault();
-                      this.addPhone(values, setFieldValue);
-                    }}
-                    tabIndex="-1"
-                  >
-                    Adicionar novo telefone
-                  </Action>
-                ) : null}
-              </Fieldset>
-              <Fieldset>
-                <Label htmlFor="emails[0].address">
-                  E-mail(s) <span>*</span>
-                </Label>
-                {values.emails.map((email, index) => (
-                  <Unit key={index}>
-                    <Field
-                      name={`emails[${index}].address`}
-                      id={`emails[${index}].address`}
-                      border={
-                        errors.emails &&
-                        errors.emails[index] &&
-                        touched.emails &&
-                        touched.emails[index]
-                          ? "1px solid red"
-                          : null
-                      }
-                    />
-                    <ErrorMessage
-                      name={`emails[${index}].address`}
-                      component={Error}
-                    />
-                    {values.emails.length > 1 ? (
-                      <Action
-                        center="true"
-                        onClick={e => {
-                          e.preventDefault();
-                          this.removeEmail(index, values, setFieldValue);
-                        }}
-                        tabIndex="-1"
-                        icon={Remove}
-                      >
-                        Remover o e-mail
-                      </Action>
-                    ) : null}
-                  </Unit>
-                ))}
-                {values.emails.length < 3 ? (
-                  <Action
-                    primary="true"
-                    icon={Add}
-                    onClick={e => {
-                      e.preventDefault();
-                      this.addEmail(values, setFieldValue);
-                    }}
-                    tabIndex="-1"
-                  >
-                    Adicionar novo e-mail
-                  </Action>
-                ) : null}
-              </Fieldset>
-              {this.parentRule(values, errors, touched)}
-              <Submit type="submit">Salvar</Submit>
+              {values.state === "RN" &&
+              values.driver_license.number.startsWith("6") ? (
+                <CityRule
+                  options={cityOptions}
+                  values={values}
+                  setFieldValue={setFieldValue}
+                  touched={touched}
+                  errors={errors}
+                />
+              ) : null}
+              <PhonesArea
+                values={values}
+                setFieldValue={setFieldValue}
+                errors={errors}
+                touched={touched}
+                add={this.addField("phones", [
+                  { code: "", number: "", main: false }
+                ])}
+                remove={this.removeField("phones")}
+                handleMain={this.handleMain}
+              />
+              <EmailsArea
+                values={values}
+                setFieldValue={setFieldValue}
+                errors={errors}
+                touched={touched}
+                add={this.addField("emails", [{ address: "" }])}
+                remove={this.removeField("emails")}
+              />
+              {/* Se idade for menor que 18 aparece os campos de responsáveis */}
+              {!this.isOfAge(values) && dateRegex.test(values.birthday) ? (
+                <ParentRule errors={errors} touched={touched} />
+              ) : null}
+              <Submit
+                type="submit"
+                onClick={e => {
+                  console.log(errors);
+                  handleSubmit(e);
+                }}
+              >
+                Salvar
+              </Submit>
             </Form>
           </Container>
         )}
