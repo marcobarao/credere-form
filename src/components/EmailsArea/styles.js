@@ -17,14 +17,28 @@ const Fieldset = styled.fieldset`
   position: relative;
   padding: 0;
   border: none;
+  width: 100%;
 `;
 
 const Unit = styled.div`
-  display: inline-block;
+  float: left;
   position: relative;
   width: 100%;
   height: 100%;
+
+  @media (min-width: 560px) and (max-width: 1119px) {
+    width: 49%;
+    &:nth-child(even) {
+      margin-right: 2%;
+    }
+  }
+
+  @media (min-width: 1120px) {
+    width: 31%;
+    margin: 0 1%;
+  }
 `;
+
 const Checked = styled.span`
   display: inline-block;
   background-color: ${props => (props.checked ? "#4aa0d5" : "#e9e9ea")};
@@ -54,7 +68,7 @@ const Action = styled.button`
         `
       : css`
           right: 0;
-          bottom: 0;
+          bottom: -10px;
         `}
   width: 24px;
   height: 24px;

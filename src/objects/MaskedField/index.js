@@ -24,7 +24,7 @@ const NormalField = ({
   touched
 }) => {
   return (
-    <Group>
+    <Group code={code} number={number}>
       {label ? (
         <Label htmlFor={name}>
           {label} <span>*</span>
@@ -42,8 +42,6 @@ const NormalField = ({
                 ? "1px solid red"
                 : null
             }
-            code={code}
-            number={number}
             formatChars={{ "9": "[0-9]", "?": "[0-9 ]" }}
             permanents={permanents}
             maskChar={maskChar}

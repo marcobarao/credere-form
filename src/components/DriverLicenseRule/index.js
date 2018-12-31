@@ -1,6 +1,5 @@
 import React from "react";
 
-import NormalField from "../../objects/NormalField";
 import MaskedField from "../../objects/MaskedField";
 
 const DriverLicenseRule = (errors, touched) => {
@@ -13,9 +12,11 @@ const DriverLicenseRule = (errors, touched) => {
         errors={errors}
         touched={touched}
       />
-      <NormalField
-        label="Orgão emissor"
+      <MaskedField
+        label="Data de emissão"
         name="driver_license.issued_at"
+        mask="99/99/9999"
+        permanents={[2, 5]}
         errors={errors}
         touched={touched}
       />

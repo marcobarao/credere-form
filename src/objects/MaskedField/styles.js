@@ -1,7 +1,43 @@
 import styled, { css } from "styled-components";
 import InputMask from "react-input-mask";
 
-const Group = styled.div``;
+const Group = styled.div`
+  float: left;
+  position: relative;
+  width: 100%;
+
+  @media (min-width: 560px) and (max-width: 1119px) {
+    width: 49%;
+    &:nth-child(even) {
+      margin-right: ${props => (props.number ? "0" : "2%")};
+    }
+  }
+
+  @media (min-width: 1120px) {
+    width: 31%;
+    ${props =>
+      props.number
+        ? css`
+            margin-right: 0;
+          `
+        : css`
+            margin: 0 1%;
+          `};
+  }
+  ${props =>
+    props.code &&
+    css`
+      width: 55px !important;
+      margin-right: 2%;
+    `}
+
+  ${props =>
+    props.number &&
+    css`
+      width: calc(98% - 55px) !important;
+      margin-right: 0;
+    `}
+`;
 
 const Label = styled.label`
   display: block;
@@ -29,21 +65,6 @@ const Mask = styled(InputMask)`
   border-radius: 10px;
   box-sizing: border-box;
   border: ${props => props.border || "1px solid #cacaca"};
-  ${props =>
-    props.code &&
-    css`
-      width: 19%;
-      margin: 10px 2% 10px 0;
-      padding: 10px 15px;
-    `}
-
-  ${props =>
-    props.number &&
-    css`
-      width: 79%;
-      margin: 10px 0;
-      padding: 10px 15px;
-    `}
 `;
 
 const Error = styled.div`

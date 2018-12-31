@@ -4,9 +4,9 @@ import _ from "lodash";
 
 import { Group, Label, Field, Error } from "./styles";
 
-const NormalField = ({ label, name, errors, touched }) => {
+const NormalField = ({ label, width, name, errors, touched }) => {
   return (
-    <Group>
+    <Group width={width}>
       {label ? (
         <Label htmlFor={name}>
           {label} <span>*</span>

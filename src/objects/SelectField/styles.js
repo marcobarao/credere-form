@@ -1,7 +1,23 @@
 import styled, { css } from "styled-components";
 import { Field as FormikField } from "formik";
 
-const Group = styled.div``;
+const Group = styled.div`
+  position: relative;
+  float: left;
+  width: 100%;
+
+  @media (min-width: 560px) and (max-width: 1119px) {
+    width: 49%;
+    &:nth-child(even) {
+      margin-right: 2%;
+    }
+  }
+
+  @media (min-width: 1120px) {
+    width: 31%;
+    margin: 0 1%;
+  }
+`;
 
 const Label = styled.label`
   display: block;

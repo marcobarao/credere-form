@@ -9,7 +9,7 @@ const selectStyles = {
   control: styles => ({
     ...styles,
     height: 40,
-    margin: "10px 0 20px",
+    margin: "20px 0 10px",
     backgroundColor: "white"
   }),
   option: styles => ({

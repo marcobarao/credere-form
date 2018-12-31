@@ -103,7 +103,20 @@ class CustomerForm extends Component {
   };
 
   removeField = name => (index, values, setFieldValue) => {
-    setFieldValue(name, values[name].filter((item, i) => index !== i));
+    const {
+      match: {
+        params: { id }
+      }
+    } = this.props;
+
+    id
+      ? setFieldValue(
+          name,
+          values[name].map((item, i) =>
+            index === i ? { ...item, destroy: true } : item
+          )
+        )
+      : setFieldValue(name, values[name].filter((item, i) => index !== i));
   };
 
   render() {

@@ -18,29 +18,32 @@ const EmailsArea = ({
       <Label htmlFor="emails[0].address">
         E-mail(s) <span>*</span>
       </Label>
-      {values.emails.map((email, index) => (
-        <Unit key={index}>
-          <NormalField
-            name={`emails[${index}].address`}
-            errors={errors}
-            touched={touched}
-          />
-          {values.emails.length > 1 ? (
-            <Action
-              center="true"
-              onClick={e => {
-                e.preventDefault();
-                remove(index, values, setFieldValue);
-              }}
-              tabIndex="-1"
-              icon={Remove}
-            >
-              Remover o e-mail
-            </Action>
-          ) : null}
-        </Unit>
-      ))}
-      {values.emails.length < 3 ? (
+      {values.emails
+        .filter(email => !email.destroy)
+        .map((email, index) => (
+          <Unit key={index}>
+            <NormalField
+              width="100%"
+              name={`emails[${index}].address`}
+              errors={errors}
+              touched={touched}
+            />
+            {values.emails.filter(email => !email.destroy).length > 1 ? (
+              <Action
+                center="true"
+                onClick={e => {
+                  e.preventDefault();
+                  remove(index, values, setFieldValue);
+                }}
+                tabIndex="-1"
+                icon={Remove}
+              >
+                Remover o e-mail
+              </Action>
+            ) : null}
+          </Unit>
+        ))}
+      {values.emails.filter(email => !email.destroy).length < 3 ? (
         <Action
           primary="true"
           icon={Add}

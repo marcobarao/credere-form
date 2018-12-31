@@ -26,9 +26,11 @@ export default Yup.object().shape({
       issued_at: Yup.string().when("$ofAge", {
         is: true,
         then: Yup.string()
-          .min(3, "Digite corretamente o nome do orgão emissor")
-          .max(20, "Nome do orgão emissor contêm muitos caracteres")
-          .required("Digite o orgão emissor da sua carteira"),
+          .matches(
+            /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/,
+            "Digite uma data valida"
+          )
+          .required("Digite a sua data de emissão da carteira"),
         otherwise: Yup.string()
       })
     })
@@ -41,31 +43,23 @@ export default Yup.object().shape({
       otherwise: Yup.string()
     })
     .nullable(),
-  phones: Yup.array()
-    .of(
-      Yup.object().shape({
-        code: Yup.string()
-          .matches(/^\d{2}.*/, "Digite o telefone corretamente")
-          .required("Digite o seu telefone"),
-        number: Yup.string()
-          .matches(/^\d{4,5}-\d{4}.*/, "Digite o telefone corretamente")
-          .required("Digite o seu telefone")
-      })
-    )
-    .compact()
-    .min(1, "Digite ao menos um telefone")
-    .max(4, "Digite no máximo 4 telefones"),
-  emails: Yup.array()
-    .of(
-      Yup.object().shape({
-        address: Yup.string()
-          .email("Digite um e-mail válido")
-          .required("Digite o seu e-mail")
-      })
-    )
-    .compact()
-    .min(1, "Digite ao menos um e-mail")
-    .max(3, "Digite no máximo 3 e-mails"),
+  phones: Yup.array().of(
+    Yup.object().shape({
+      code: Yup.string()
+        .matches(/^\d{2}.*/, "Digite o telefone corretamente")
+        .required("Digite o seu telefone"),
+      number: Yup.string()
+        .matches(/^\d{4,5}-\d{4}.*/, "Digite o telefone corretamente")
+        .required("Digite o seu telefone")
+    })
+  ),
+  emails: Yup.array().of(
+    Yup.object().shape({
+      address: Yup.string()
+        .email("Digite um e-mail válido")
+        .required("Digite o seu e-mail")
+    })
+  ),
   parent: Yup.object()
     .shape({
       name: Yup.string().when("$parent", {

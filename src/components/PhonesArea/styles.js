@@ -17,13 +17,26 @@ const Fieldset = styled.fieldset`
   position: relative;
   padding: 0;
   border: none;
+  width: 100%;
 `;
 
 const Unit = styled.div`
-  display: inline-block;
+  float: left;
   position: relative;
   width: 100%;
   height: 100%;
+
+  @media (min-width: 560px) and (max-width: 1119px) {
+    width: 49%;
+    &:nth-child(even) {
+      margin-right: 2%;
+    }
+  }
+
+  @media (min-width: 1120px) {
+    width: 31%;
+    margin: 0 1%;
+  }
 `;
 const Checked = styled.span`
   display: inline-block;
@@ -49,7 +62,7 @@ const Action = styled.button`
     props.center
       ? css`
           top: 30px;
-          right: 0;
+          right: 5px;
           transform: translateY(-50%);
         `
       : css`
