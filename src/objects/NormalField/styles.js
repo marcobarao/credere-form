@@ -5,6 +5,12 @@ const Group = styled.div`
   position: relative;
   float: left;
   width: 100%;
+  height: 135px;
+  ${props =>
+    props.maxHeight &&
+    css`
+      max-height: 80px;
+    `}
 
   @media (min-width: 560px) and (max-width: 1119px) {
     width: ${props => props.width || "49%"};

@@ -48,6 +48,7 @@ const PhonesArea = ({
               withError={false}
               errors={errors}
               touched={touched}
+              data-test="phone-unit"
             />
             {touched.phones &&
             touched.phones[index] &&
@@ -67,6 +68,7 @@ const PhonesArea = ({
               <>
                 <Action
                   center="true"
+                  className="remove_phone"
                   onClick={e => {
                     e.preventDefault();
                     remove(index, values, setFieldValue);
@@ -95,6 +97,7 @@ const PhonesArea = ({
         <Action
           primary="true"
           icon={Add}
+          id="add_phone"
           onClick={e => {
             e.preventDefault();
             add(values, setFieldValue);

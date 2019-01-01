@@ -27,9 +27,12 @@ const EmailsArea = ({
               name={`emails[${index}].address`}
               errors={errors}
               touched={touched}
+              maxHeight="true"
+              data-test="email-unit"
             />
             {values.emails.filter(email => !email.destroy).length > 1 ? (
               <Action
+                className="remove_email"
                 center="true"
                 onClick={e => {
                   e.preventDefault();
@@ -45,6 +48,7 @@ const EmailsArea = ({
         ))}
       {values.emails.filter(email => !email.destroy).length < 3 ? (
         <Action
+          id="add_email"
           primary="true"
           icon={Add}
           onClick={e => {

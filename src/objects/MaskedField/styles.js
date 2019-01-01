@@ -5,6 +5,11 @@ const Group = styled.div`
   float: left;
   position: relative;
   width: 100%;
+  ${props =>
+    props.height &&
+    css`
+      height: 135px;
+    `}
 
   @media (min-width: 560px) and (max-width: 1119px) {
     width: 49%;
@@ -37,6 +42,10 @@ const Group = styled.div`
       width: calc(98% - 55px) !important;
       margin-right: 0;
     `}
+
+    &:last-of-type {
+    margin-bottom: 20px;
+  }
 `;
 
 const Label = styled.label`

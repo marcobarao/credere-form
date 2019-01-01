@@ -9,6 +9,7 @@ const DriverLicenseRule = (errors, touched) => {
         label="Carteira de motorista"
         name="driver_license.number"
         mask="99999999999"
+        height="true"
         errors={errors}
         touched={touched}
       />
@@ -16,6 +17,7 @@ const DriverLicenseRule = (errors, touched) => {
         label="Data de emissão"
         name="driver_license.issued_at"
         mask="99/99/9999"
+        height="true"
         permanents={[2, 5]}
         errors={errors}
         touched={touched}

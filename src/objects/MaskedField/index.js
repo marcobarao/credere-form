@@ -20,11 +20,12 @@ const NormalField = ({
   withError = true,
   code,
   number,
+  height,
   errors,
   touched
 }) => {
   return (
-    <Group code={code} number={number}>
+    <Group code={code} number={number} height={height}>
       {label ? (
         <Label htmlFor={name}>
           {label} <span>*</span>
@@ -38,7 +39,7 @@ const NormalField = ({
             {...field}
             mask={masks(mask, field)}
             border={
-              _.get(errors, name, false) && _.get(touched, name, false)
+              _.get(errors, name) && _.get(touched, name)
                 ? "1px solid red"
                 : null
             }

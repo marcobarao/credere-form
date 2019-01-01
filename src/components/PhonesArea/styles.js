@@ -24,6 +24,7 @@ const Unit = styled.div`
   float: left;
   position: relative;
   width: 100%;
+  min-height: 135px;
   height: 100%;
 
   @media (min-width: 560px) and (max-width: 1119px) {

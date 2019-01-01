@@ -14,7 +14,8 @@ const Title = styled.h2`
 `;
 
 const Submit = styled.button`
-  display: inline-block;
+  display: block;
+  clear: left;
   font-family: "Open Sans", sans-serif;
   font-size: 14px;
   line-height: 18px;

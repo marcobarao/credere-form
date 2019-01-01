@@ -5,6 +5,7 @@ const Group = styled.div`
   position: relative;
   float: left;
   width: 100%;
+  height: 135px;
 
   @media (min-width: 560px) and (max-width: 1119px) {
     width: 49%;

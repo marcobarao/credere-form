@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Formik, Form, validateYupSchema, yupToFormErrors } from "formik";
+import Alert from "react-s-alert";
 
 import { Container, Title, Submit } from "./styles";
 import ValidationSchema from "./validationSchema";
@@ -44,8 +45,52 @@ class CustomerForm extends Component {
     }
   };
 
+  validate = values => {
+    const ofAge = this.isOfAge(values);
+    const parent = !ofAge && dateRegex.test(values.birthday);
+    const city = values.state === "RN";
+    try {
+      validateYupSchema(values, ValidationSchema, true, {
+        ofAge,
+        city,
+        parent
+      });
+    } catch (err) {
+      return yupToFormErrors(err);
+    }
+
+    return {};
+  };
+
+  edit = async values => {
+    const { customer } = this.state;
+    if (this.isOfAge(values) !== this.isOfAge(customer)) {
+      this.isOfAge(values)
+        ? (values.parent = { ...values.parent, destroy: true })
+        : (values.driver_license = { ...values.driver_license, destroy: true });
+    }
+
+    await api.put("update.json", values);
+    return values;
+  };
+
+  create = async values => {
+    await api.post("create.json", values);
+    return values;
+  };
+
   handleSubmit = values => {
-    console.log(values);
+    const {
+      match: {
+        params: { id }
+      }
+    } = this.props;
+    const result = id ? this.edit(values) : this.create(values);
+    Alert.success("Cliente salvo com sucesso :)", {
+      position: "bottom-right",
+      effect: "slide"
+    });
+    result.then(values => console.log(values)).catch(err => console.log(err));
   };
 
   handleMain = ({ phones }, index, setFieldValue) => {
@@ -65,9 +110,21 @@ class CustomerForm extends Component {
     } = this.props;
 
     if (id) {
-      const resCustomer = await api.get("customer.json");
+      const resCustomer = await api.get("show.json");
       const customer = resCustomer.data.customer;
       if (customer.state === "RN") this.getCities(24);
+      customer.driver_license = customer.driver_license || {
+        number: "",
+        issued_at: ""
+      };
+      customer.parent = customer.parent || {
+        name: "",
+        phone: {
+          code: "",
+          number: ""
+        }
+      };
+      customer.city = customer.city || "";
       this.setState({ customer });
     }
 
@@ -112,9 +169,15 @@ class CustomerForm extends Component {
     id
       ? setFieldValue(
           name,
-          values[name].map((item, i) =>
-            index === i ? { ...item, destroy: true } : item
-          )
+          values[name]
+            .map((item, i) =>
+              index === i
+                ? item.hasOwnProperty("id")
+                  ? { ...item, destroy: true }
+                  : ""
+                : item
+            )
+            .filter(item => item)
         )
       : setFieldValue(name, values[name].filter((item, i) => index !== i));
   };
@@ -128,22 +191,7 @@ class CustomerForm extends Component {
         enableReinitialize={true}
         validateOnBlur={false}
         validateOnChange={false}
-        validate={values => {
-          const ofAge = this.isOfAge(values);
-          const parent = !ofAge && dateRegex.test(values.birthday);
-          const city = values.state === "RN";
-          try {
-            validateYupSchema(values, ValidationSchema, true, {
-              ofAge,
-              city,
-              parent
-            });
-          } catch (err) {
-            return yupToFormErrors(err);
-          }
-
-          return {};
-        }}
+        validate={this.validate}
         onSubmit={this.handleSubmit}
       >
         {({ handleSubmit, setFieldValue, errors, values, touched }) => (
@@ -163,6 +211,7 @@ class CustomerForm extends Component {
                 permanents={[2, 5]}
                 errors={errors}
                 touched={touched}
+                height="true"
               />
               {/* Mostra as informações de carteira de motorista se for maior de idade */}
               {this.isOfAge(values) && dateRegex.test(values.birthday) ? (
@@ -179,8 +228,12 @@ class CustomerForm extends Component {
                 )}
                 onChange={option => {
                   setFieldValue("state", option ? option.sigla : "");
-                  if (option && option.sigla === "RN")
+
+                  if (option && option.sigla === "RN") {
                     this.getCities(option.id);
+                  } else {
+                    setFieldValue("city", "");
+                  }
                 }}
                 options={stateOptions}
                 errors={errors}
@@ -219,13 +272,7 @@ class CustomerForm extends Component {
               {!this.isOfAge(values) && dateRegex.test(values.birthday) ? (
                 <ParentRule errors={errors} touched={touched} />
               ) : null}
-              <Submit
-                type="submit"
-                onClick={e => {
-                  console.log(errors);
-                  handleSubmit(e);
-                }}
-              >
+              <Submit type="submit" onClick={handleSubmit}>
                 Salvar
               </Submit>
             </Form>

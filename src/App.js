@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Alert from "react-s-alert";
 
 import Routes from "./Routes";
 
@@ -7,6 +8,7 @@ class App extends Component {
     return (
       <>
         <Routes />
+        <Alert stack={{ limit: 3 }} />
       </>
     );
   }
