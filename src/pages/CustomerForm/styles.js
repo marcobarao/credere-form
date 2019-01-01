@@ -13,6 +13,17 @@ const Title = styled.h2`
   color: #454553;
 `;
 
+const Subtitle = styled.h3`
+  font-family: "Open Sans", sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: normal;
+  color: #454553;
+  > span {
+    color: #d14e63;
+  }
+`;
+
 const Submit = styled.button`
   display: block;
   clear: left;
@@ -39,4 +50,4 @@ const Submit = styled.button`
   }
 `;
 
-export { Container, Title, Submit };
+export { Container, Title, Subtitle, Submit };

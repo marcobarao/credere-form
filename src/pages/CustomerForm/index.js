@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Formik, Form, validateYupSchema, yupToFormErrors } from "formik";
 import Alert from "react-s-alert";
 
-import { Container, Title, Submit } from "./styles";
+import { Container, Title, Subtitle, Submit } from "./styles";
 import ValidationSchema from "./validationSchema";
 import ibge from "../../services/ibge";
 import api from "../../services/api";
@@ -192,7 +192,6 @@ class CustomerForm extends Component {
             .filter(item => item)
         )
       : setFieldValue(name, values[name].filter((item, i) => index !== i));
-    console.log(values[name]);
   };
 
   render() {
@@ -211,6 +210,9 @@ class CustomerForm extends Component {
           <Container>
             <Form>
               <Title>Cliente</Title>
+              <Subtitle>
+                <span>*</span> Campo obrigatório
+              </Subtitle>
               <NormalField
                 label="Nome"
                 name="name"
