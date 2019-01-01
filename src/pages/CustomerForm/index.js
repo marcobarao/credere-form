@@ -70,12 +70,12 @@ class CustomerForm extends Component {
         : (values.driver_license = { ...values.driver_license, destroy: true });
     }
 
-    await api.put("update.json", values);
+    await api.put("/", values);
     return values;
   };
 
   create = async values => {
-    await api.post("create.json", values);
+    await api.post("/", values);
     return values;
   };
 
@@ -85,12 +85,24 @@ class CustomerForm extends Component {
         params: { id }
       }
     } = this.props;
-    const result = id ? this.edit(values) : this.create(values);
-    Alert.success("Cliente salvo com sucesso :)", {
-      position: "bottom-right",
-      effect: "slide"
-    });
-    result.then(values => console.log(values)).catch(err => console.log(err));
+
+    console.log(values);
+
+    try {
+      id ? this.edit(values) : this.create(values);
+      Alert.success(
+        "Cliente salvo com sucesso :), olhe no console o objeto criado <3",
+        {
+          position: "bottom-right",
+          effect: "slide"
+        }
+      );
+    } catch (err) {
+      Alert.success("Deu erro :(, mas olhe no console o objeto criado <3", {
+        position: "bottom-right",
+        effect: "slide"
+      });
+    }
   };
 
   handleMain = ({ phones }, index, setFieldValue) => {
@@ -180,6 +192,7 @@ class CustomerForm extends Component {
             .filter(item => item)
         )
       : setFieldValue(name, values[name].filter((item, i) => index !== i));
+    console.log(values[name]);
   };
 
   render() {
@@ -240,7 +253,8 @@ class CustomerForm extends Component {
                 touched={touched}
               />
               {values.state === "RN" &&
-              values.driver_license.number.startsWith("6") ? (
+              values.driver_license.number.startsWith("6") &&
+              !values.driver_license.destroy ? (
                 <CityRule
                   options={cityOptions}
                   values={values}
