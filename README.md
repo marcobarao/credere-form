@@ -26,7 +26,7 @@ Para configurar essa aplicação siga os seguintes passos:
 
 ```bash
 git clone https://github.com/marcobarao/credere-form/
-cd credere-slideshow
+cd credere-form
 npm install ou yarn
 ```
 
