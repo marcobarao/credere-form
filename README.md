@@ -33,7 +33,7 @@ npm install ou yarn
 2. Após instalar as dependências, basta rodar
 
 ```bash
-npm runrt ou yarn start
+npm run start ou yarn start
 ```
 
 3. Abra seu navegador e vá para a url _http://127.0.0.1:3000/_
