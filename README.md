@@ -38,7 +38,7 @@ npm run start ou yarn start
 
 3. Abra seu navegador e vá para a url _http://127.0.0.1:3000/_
 
-4. Para realizar os testes execute o comando
+4. Para executar a bateria de testes execute o comando
 
 ```bash
 npm run test ou yarn test
